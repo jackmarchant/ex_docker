@@ -25,6 +25,6 @@ defmodule ExDocker.MixProject do
   end
 
   def escript do
-    [main_module: ExDocker.CLI]
+    [main_module: ExDocker.Cli]
   end
 end
