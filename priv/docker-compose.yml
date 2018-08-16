@@ -1,0 +1,32 @@
+version: "3"
+services:
+  $PROJECT_NAME:
+    build:
+      context: .
+    ports:
+      - "4000:4000"
+    entrypoint: "tail -f /dev/null"
+    working_dir: /usr/src/$PROJECT_NAME
+    volumes:
+      - .:/usr/src/$PROJECT_NAME
+    depends_on:
+      - postgres
+    environment:
+      MIX_ENV: dev
+      APP_VERSION: 1.0.6
+      PORT: 4000
+      HOSTNAME: localhost
+      DATABASE_URL: ecto://postgres:postgres@postgres:5432/$PROJECT_NAME_dev
+  postgres:
+    image: postgres:9.6-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: $PROJECT_NAME_dev
+volumes:
+  postgres:
+    driver: local
