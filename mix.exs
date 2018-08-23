@@ -25,6 +25,9 @@ defmodule ExDocker.MixProject do
   end
 
   def escript do
-    [main_module: ExDocker.Cli]
+    [
+      main_module: ExDocker.Cli,
+      name: :exdocker
+    ]
   end
 end
