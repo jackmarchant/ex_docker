@@ -1,7 +1,11 @@
 defmodule ExDocker.Cli do
   require Logger
 
-  @directory "priv"
+  @files %{
+    "docker-compose.yml" => "priv" |> Path.join("docker-compose.yml") |> File.read!(),
+    "Dockerfile" => "priv" |> Path.join("Dockerfile") |> File.read!(),
+    "Makefile" => "priv" |> Path.join("Makefile") |> File.read!()
+  }
 
   @spec main([String.t()]) :: :ok
   def main([]), do: Logger.error(fn -> "Please provide a valid path" end)
@@ -9,14 +13,7 @@ defmodule ExDocker.Cli do
   def main([project_name]) do
     res = File.mkdir(project_name)
 
-    build_files(
-      [
-        "docker-compose.yml",
-        "Dockerfile",
-        "Makefile"
-      ],
-      project_name
-    )
+    build_files(Enum.to_list(@files), project_name)
 
     case res do
       :ok -> Logger.info(fn -> "Created new project: #{project_name}" end)
@@ -26,20 +23,17 @@ defmodule ExDocker.Cli do
 
   defp build_files([], _), do: :ok
 
-  defp build_files([file | rest], project_name) do
-    content = replace_content(file, project_name)
+  defp build_files([{filename, content} | rest], project_name) do
+    content = replace_content(content, project_name)
 
     project_name
-    |> Path.join(file)
+    |> Path.join(filename)
     |> File.write!(content)
 
     build_files(rest, project_name)
   end
 
-  defp replace_content(file, project_name) do
-    @directory
-    |> Path.join(file)
-    |> File.read!()
-    |> String.replace("$PROJECT_NAME", project_name)
+  defp replace_content(string, project_name) do
+    String.replace(string, "$PROJECT_NAME", project_name)
   end
 end
